@@ -1,35 +1,38 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders } from '@/test/helpers/renderWithProviders';
-import { resetAllStores } from '@/test/helpers/storeReset';
-import { registerDefaultCoverInvokeHandlers } from '@/test/mocks/tauri';
-import { useAuthStore } from '@/store/authStore';
-import type { SubsonicPlaylist } from '@/lib/api/subsonicTypes';
+import { describe, expect, it, vi } from 'vitest';
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { samplePlaylist } from '@/test/mocks/subsonic';
+
+const coverProps = vi.hoisted(() => [] as Array<{ displayCssPx?: number }>);
+vi.mock('@/features/playlist/components/PlaylistCoverImages', () => ({
+  PlaylistCardMainCover: (props: { displayCssPx?: number }) => {
+    coverProps.push(props);
+    return null;
+  },
+  PlaylistSmartCoverCell: () => null,
+}));
+vi.mock('@/lib/dnd/DragDropContext', () => ({ useDragSource: () => ({}) }));
+vi.mock('@/features/playback', () => ({
+  NowPlayingMarker: () => null,
+  useIsNowPlaying: () => false,
+}));
+
 import PlaylistCard from './PlaylistCard';
 
-describe('PlaylistCard', () => {
-  beforeEach(() => {
-    resetAllStores();
-    registerDefaultCoverInvokeHandlers();
-  });
-
-  it('keeps the edit and delete strip on desktop', () => {
-    const serverId = useAuthStore.getState().addServer({
-      name: 'T', url: 'https://x.test', username: 'tester', password: 'p',
-    });
-    const pl: SubsonicPlaylist = {
-      id: 'pl-1', name: 'Road Trip', songCount: 3, duration: 600, created: '', changed: '', serverId, public: true,
-    };
-    const { container } = renderWithProviders(
+function renderCard(coverCssPx?: number) {
+  coverProps.length = 0;
+  render(
+    <MemoryRouter>
       <PlaylistCard
-        pl={pl}
+        pl={samplePlaylist}
         selectionMode={false}
         selectedIds={new Set()}
         selectedPlaylists={[]}
         toggleSelect={vi.fn()}
-        isPlaylistDeletable={() => true}
+        isPlaylistDeletable={() => false}
         deleteConfirmId={null}
         setDeleteConfirmId={vi.fn()}
-        handleOpenSmartEditor={vi.fn(async () => {})}
+        handleOpenSmartEditor={vi.fn()}
         handleDelete={vi.fn()}
         handlePlay={vi.fn()}
         playingId={null}
@@ -37,8 +40,20 @@ describe('PlaylistCard', () => {
         pendingSmart={[]}
         filteredSongCountByPlaylist={{}}
         filteredDurationByPlaylist={{}}
-      />,
-    );
-    expect(container.querySelectorAll('.playlist-card-actions .playlist-card-action')).toHaveLength(2);
+        coverCssPx={coverCssPx}
+      />
+    </MemoryRouter>,
+  );
+  return coverProps[coverProps.length - 1];
+}
+
+describe('PlaylistCard cover size', () => {
+  it('sizes the cover from the measured grid cell', () => {
+    expect(renderCard(312)?.displayCssPx).toBe(312);
+  });
+
+  it('leaves the cover default in place before the grid has measured', () => {
+    expect(renderCard(0)?.displayCssPx).toBeUndefined();
+    expect(renderCard()?.displayCssPx).toBeUndefined();
   });
 });

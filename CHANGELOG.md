@@ -70,6 +70,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Pick the start date and a dark or light color scheme; the dialog shows how many albums and images it will make, where they are saved, and the result.
 * All text in the image follows the app language. Hide the button under **Settings → Personalisation → New Releases**.
 
+### Lyrics — choose text size and the primary pronunciation line
+
+**By [@cucadmuh](https://github.com/cucadmuh), PR [#1863](https://github.com/Psysonic/psysonic/pull/1863)**
+
+* **Settings → Lyrics → Lyrics size** changes only lyrics in the panel and fullscreen player, from 50% to 200%, and remembers your choice. A small percentage in lyrics supports wheel resizing and click-to-reset; turn off **Show size in lyrics** to hide it without leaving an empty row.
+* **Ctrl/⌘ + plus or minus** changes lyrics size and **Ctrl/⌘ + 0** resets it. Modified wheel over lyrics still works when the percentage is hidden; ordinary scrolling elsewhere stays unchanged.
+* **Pronunciation as the primary line** puts available pronunciation or romaji first and larger, with the original text underneath. Lines without pronunciation keep their original text.
+
 ## Fixed
 
 ### Smart playlists keep Navidrome 0.64 rules when edited
@@ -104,6 +112,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * An original and its reissue in the same library were shown as one album when the reissue is tagged with the original's year. Psysonic now tells them apart by the release year Navidrome reports for each edition. Songs read through the Subsonic API carry no release year, so for those it still goes by the year tag. That includes Navidrome libraries synced that way, as scoped syncs and the first sync of a large library are; a copy of a reissue read like this can still be grouped with the original.
 * The New Releases row compares a not yet indexed album by its edition's release date as well, so a fresh reissue no longer lands on the original's card.
 * After the update the library rebuilds its album groups once in the background.
+
+### AutoDJ crossfades keep the playback position aligned
+
+**By [@Puppies-On-Acid](https://github.com/Puppies-On-Acid), PR [#1826](https://github.com/Psysonic/psysonic/pull/1826)**
+
+* After successive AutoDJ crossfades, the seekbar and synchronised lyrics could run ahead of the music and trigger the next transition too early. Outgoing audio no longer advances the incoming track's playback clock, so the drift does not accumulate.
 
 ### Song Info for downloaded and cached tracks
 
@@ -153,6 +167,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * After one track had flowed into the next with gapless playback, pausing made the mini player's progress bar jump, often to the very end of the track, until playback resumed. It now stays where the music stopped.
 
+### Auth-gated servers pair with a local address that is strict about CORS
+
+**By [@enncoded](https://github.com/enncoded), PR [#1851](https://github.com/Psysonic/psysonic/pull/1851)**
+
+* Follow-up to [#1817](https://github.com/Psysonic/psysonic/pull/1817): a server whose public address sits behind a header-auth gate still refused to pair with a local address that sends no CORS headers (a strict reverse proxy, or Bandcamp's Subsonic API). The connection check reached the local address over the wrong route and so never noticed what it needed. The check now reaches every address the way the rest of the app does, and those two addresses can be saved together.
+
 ### Featured artists open on their own page
 
 **By [@Psychotoxical](https://github.com/Psychotoxical), reported by Peewee on Discord, PR [#1852](https://github.com/Psysonic/psysonic/pull/1852)**
@@ -172,6 +192,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * An album could keep the server's "no artwork" image on Home and in lists after retagging, even once the server had the cover. Psysonic now asks the server again when that image is older than 30 minutes and replaces it with the real cover.
 * The album page also asks the server first, so the album's own cover replaces one fetched earlier from an external source.
+
+### Bandcamp servers with a wrong password no longer connect
+
+**By [@Psychotoxical](https://github.com/Psychotoxical), reported by belfast on Discord, PR [#1855](https://github.com/Psysonic/psysonic/pull/1855)**
+
+* Bandcamp's Subsonic API reports a successful connection test even when the username or password is wrong. Psysonic then saved the server, and the library stayed empty without an error. The connection test now also checks the login with a real request and fails when Bandcamp rejects it.
+* Copying a password by double-click can pick up a space at the start or end. The login page and the server form now show a hint below the password field when that happens. The password itself is kept as you entered it, because a space can be part of a real password.
+
+### Playlist covers stay sharp in the grid
+
+**By [@Psychotoxical](https://github.com/Psychotoxical), reported by [@Ter0zak](https://github.com/Ter0zak), PR [#1856](https://github.com/Psysonic/psysonic/pull/1856)**
+
+* Covers that are not square, such as many imported playlist images, turned blurry after a second or two once the cover cache had saved them. The cache scaled them by their longer side, so the image was too small to fill a square card. It now scales by the shorter side. Covers cached by earlier versions are redrawn once from the copy already on disk, in the background after the first start, so they stay available while the server is offline.
+* A grid card could keep a small thumbnail that the sidebar had already loaded for the same playlist. Cards now load their own size and show the small image only until then.
+* Playlist cards request a cover size that matches how large they are drawn, instead of a fixed size.
+
+### Linux Hi-Res playback keeps the correct speed
+
+**By [@RookieeOfTheYear](https://github.com/RookieeOfTheYear), PR [#1857](https://github.com/Psysonic/psysonic/pull/1857)**
+
+* On affected PipeWire setups, Native Hi-Res Playback at high sample rates such as 192 kHz no longer plays at half speed with rhythmic gaps.
+
+### Non-Navidrome servers no longer trigger a false migration block
+
+**By [@cucadmuh](https://github.com/cucadmuh), reported by [@Infinifar](https://github.com/Infinifar), PR [#1862](https://github.com/Psysonic/psysonic/pull/1862)**
+
+* Connecting to MusicTagWeb or another non-Navidrome server no longer creates a false Navidrome migration block. Existing blocks with no migration work are recovered when the server still reports the same version, without resetting the library or settings.
+
+### Security updates for the Windows updater and code checks
+
+**By [@cucadmuh](https://github.com/cucadmuh), PR [#1865](https://github.com/Psysonic/psysonic/pull/1865)**
+
+* Updated the in-app updater to remove its older ZIP dependency with known crafted-archive vulnerabilities. Update signing keys and settings are unchanged; theme imports and backups already use the patched ZIP library.
+* Updated the development-only glob matcher to fix a denial-of-service issue during code checks.
+
+### Continue Listening keeps resume points tied to their list
+
+**By [@cucadmuh](https://github.com/cucadmuh), reported by [@chriswdail](https://github.com/chriswdail), PR [#1866](https://github.com/Psysonic/psysonic/pull/1866)**
+
+* Restoring a queue saved by another client no longer overwrites the previous album or playlist's Continue Listening point with tracks from the new queue. Position-only updates keep the current list's session.
+* Existing corrupted points are not repaired automatically.
 
 ## Changed
 

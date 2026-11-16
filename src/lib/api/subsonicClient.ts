@@ -156,7 +156,7 @@ async function requestViaRustProxy<T>(
  * 2. A previous call already proved the address sends no CORS headers, so the
  *    WebView would discard the response (see `nativeTransportFallback`).
  */
-function requiresNativeTransport(
+export function requiresNativeTransport(
   headerProfile: ServerHttpHeaderProfile | undefined,
   requestBaseUrl: string,
 ): boolean {

@@ -1,7 +1,7 @@
-//! Android: hand the Java VM and the activity to the crates that call into Java.
-//! - `ndk-context` for cpal's AAudio backend, which aborts when nobody set it.
-//! - `rustls-platform-verifier`, which reqwest uses to check server certificates through
-//!   Android's own trust store (its Kotlin half comes in via `src-tauri/android/patch-gen.mjs`).
+//! Android: hand the Java VM and the activity to `rustls-platform-verifier`, which reqwest
+//! uses to check server certificates through Android's own trust store (its Kotlin half
+//! comes in via `src-tauri/android/patch-gen.mjs`). `ndk-context` (cpal's AAudio backend)
+//! is set by tao itself.
 //!
 //! tao starts `run` on its own thread while the activity is still being created, so the
 //! context can arrive a moment after `run` begins: wait for it briefly.
@@ -29,9 +29,8 @@ pub fn init() {
         std::thread::sleep(POLL_STEP);
     };
 
-    unsafe {
-        ndk_context::initialize_android_context(ctx.java_vm, ctx.context_jobject);
-    }
+    // `ndk-context` is set by tao itself since 0.37 (with the application context, when the
+    // first activity is created); setting it a second time panics.
 
     // SAFETY: tao keeps the VM pointer and a global reference to the activity alive for
     // the whole process; the verifier takes its own global reference from it.
