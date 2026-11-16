@@ -155,6 +155,7 @@ when changing the files involved. Pure layout swaps (touch components, `DesktopO
 | No fullscreen auto-open, no start-minimised, no mini-player preload, no GitHub updater; lyrics always scroll classic; track lists always show covers. | Desktop-only concepts or touch layout needs. | `useFsAutoOpen.ts`, `readStartMinimizedToTray.ts`, `MainApp.tsx`, `AppShell.tsx`, `LyricsPane.tsx`, `useTrackListCoverArtSettings.ts` |
 | Streaming quality is edited under Settings → Audio, per address of the active server. | It was hidden at the bottom of the server sheet. | `src/features/settings/components/audio/StreamQualityTouchSection.tsx` (same setting as the server form) |
 | Confirmations use a sheet instead of `window.confirm`. | `confirm()` is unreliable in the mobile WebView. | `src/features/settings/utils/confirmChoice.ts` |
+| Lyrics size: no size setting and no size badge on mobile; lyrics always show at the default size, also when a desktop backup set another. | The desktop control is a keyboard and wheel zoom; the phone has no size buttons on the lyrics sheet (yet). | `src/features/lyrics/hooks/useLyricsAppearance.ts`, `src/features/settings/components/LyricsTab.tsx` (`DesktopOnly`) |
 
 A setting that is read somewhere new, without going through these gates, can arrive on the
 phone from a desktop backup. Check the touch side when adding one.

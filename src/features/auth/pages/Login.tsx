@@ -14,6 +14,7 @@ import { syncServerHttpContextForProfile } from '@/lib/server/syncServerHttpCont
 import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n';
 import CustomSelect from '@/ui/CustomSelect';
+import { PasswordEdgeSpaceHint } from '@/ui/PasswordEdgeSpaceHint';
 import {
   decodeServerMagicString,
   DECODED_PASSWORD_VISUAL_MASK,
@@ -443,6 +444,7 @@ export default function Login() {
                     value={form.password}
                     onChange={update('password')}
                     autoComplete="current-password"
+                    aria-describedby="login-password-edge-space"
                     style={{ paddingRight: '2.5rem' }}
                   />
                   <button
@@ -454,6 +456,9 @@ export default function Login() {
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              )}
+              {!blockPasswordReveal && (
+                <PasswordEdgeSpaceHint id="login-password-edge-space" password={form.password} />
               )}
             </div>
           </div>

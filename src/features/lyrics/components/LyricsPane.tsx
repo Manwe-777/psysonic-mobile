@@ -15,6 +15,10 @@ import OverlayScrollArea from '@/ui/OverlayScrollArea';
 import { LyricsLineContent } from '@/features/lyrics/components/LyricsLineContent';
 import { useLyricsRomanization } from '@/features/lyrics/hooks/useLyricsRomanization';
 import { useLyricsTranslation } from '@/features/lyrics/hooks/useLyricsTranslation';
+import { useLyricsAppearance } from '@/features/lyrics/hooks/useLyricsAppearance';
+import { isLyricsZoomWheel } from '@/lib/media/lyricsAppearance';
+import { LyricsZoomControls } from './LyricsZoomControls';
+import { useLyricsZoomKeyboard } from '../hooks/useLyricsZoomKeyboard';
 import {
   romanizationProgressForWord,
   setRomanizationProgress,
@@ -37,6 +41,9 @@ interface Props {
  */
 export default function LyricsPane({ currentTrack }: Props) {
   const { t } = useTranslation();
+  const appearance = useLyricsAppearance();
+  const { scale, romanizationPrimary, appearanceRef, appearanceStyle } = appearance;
+  const keyboardRef = useLyricsZoomKeyboard();
 
   const {
     syncedLines,
@@ -108,13 +115,20 @@ export default function LyricsPane({ currentTrack }: Props) {
     containerRef.current = el;
     scrollerRef.current?.stop();
     scrollerRef.current = el ? new EaseScroller(el) : null;
-  }, []);
+    appearanceRef(el);
+  }, [appearanceRef]);
 
-  const handleUserScroll = useCallback(() => {
+  const handleUserScroll = useCallback((event: React.WheelEvent | React.TouchEvent) => {
+    if ('deltaY' in event && isLyricsZoomWheel(event)) return;
     scrollerRef.current?.stop();
     isUserScroll.current = true;
     if (scrollTimer.current) clearTimeout(scrollTimer.current);
     scrollTimer.current = setTimeout(() => { isUserScroll.current = false; }, 4000);
+  }, []);
+
+  useEffect(() => () => {
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    scrollerRef.current?.stop();
   }, []);
 
   const scrollToLine = useCallback((el: HTMLDivElement, immediate = false) => {
@@ -274,13 +288,12 @@ export default function LyricsPane({ currentTrack }: Props) {
 
   // An extra line under every lyric shifts the active line, so re-anchor it.
   useLayoutEffect(() => {
-    if (!romanizedLines && !translatedLines) return;
     const frame = requestAnimationFrame(() => {
       const activeLine = lineRefs.current[prevActive.current.line];
       if (activeLine) scrollToLine(activeLine, true);
     });
     return () => cancelAnimationFrame(frame);
-  }, [romanizedLines, translatedLines, scrollToLine]);
+  }, [romanizedLines, translatedLines, scrollToLine, scale, romanizationPrimary]);
 
   const setRomanizationRef = useCallback((lineIndex: number) => (element: HTMLSpanElement | null) => {
     romanizationRefs.current[lineIndex] = element;
@@ -331,7 +344,8 @@ export default function LyricsPane({ currentTrack }: Props) {
   );
 
   return (
-    <div className="lyrics-pane-wrap">
+    <div className="lyrics-pane-wrap" ref={keyboardRef} style={appearanceStyle}>
+      <LyricsZoomControls {...appearance} />
       <OverlayScrollArea
         className="lyrics-pane"
         viewportClassName="lyrics-pane__viewport"
@@ -345,6 +359,8 @@ export default function LyricsPane({ currentTrack }: Props) {
           hasSynced,
           staticOnly,
           sidebarLyricsStyle,
+          scale,
+          romanizationPrimary,
           plainLyrics?.length ?? 0,
           syncedLines?.length ?? 0,
           wordLines?.length ?? 0,
@@ -369,6 +385,7 @@ export default function LyricsPane({ currentTrack }: Props) {
                 style={{ cursor: 'pointer' }}
               >
                 <LyricsLineContent
+                  romanizationPrimary={romanizationPrimary}
                   romanization={romanizedLines?.[i]}
                   romanizationRef={setRomanizationRef(i)}
                   translation={translatedLines?.[i]}
@@ -401,7 +418,7 @@ export default function LyricsPane({ currentTrack }: Props) {
                 onClick={() => { if (duration > 0) seek(line.time / duration); }}
                 style={{ cursor: 'pointer' }}
               >
-                <LyricsLineContent romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
+                <LyricsLineContent romanizationPrimary={romanizationPrimary} romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
                   {line.text || '\u00A0'}
                 </LyricsLineContent>
               </div>
@@ -416,7 +433,7 @@ export default function LyricsPane({ currentTrack }: Props) {
               : (wordLines as WordLyricsLine[]).map(l => l.text)
             ).map((text, i) => (
               <p key={i} className="lyrics-plain-line">
-                <LyricsLineContent romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
+                <LyricsLineContent romanizationPrimary={romanizationPrimary} romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
                   {text || '\u00A0'}
                 </LyricsLineContent>
               </p>
@@ -428,7 +445,7 @@ export default function LyricsPane({ currentTrack }: Props) {
           <div className="lyrics-plain">
             {plainLyrics.split('\n').map((line, i) => (
               <p key={i} className="lyrics-plain-line">
-                <LyricsLineContent romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
+                <LyricsLineContent romanizationPrimary={romanizationPrimary} romanization={romanizedLines?.[i]} translation={translatedLines?.[i]}>
                   {line || '\u00A0'}
                 </LyricsLineContent>
               </p>

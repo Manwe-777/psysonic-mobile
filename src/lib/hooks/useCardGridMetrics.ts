@@ -9,8 +9,9 @@ import {
 } from '@/lib/util/cardGridLayout';
 
 /**
- * ResizeObserver-driven column count (capped by Settings → Library) and
- * virtual row height estimate from the measured cell width.
+ * ResizeObserver-driven column count (capped by Settings → Library), the
+ * measured container width (0 until the first measure) and the virtual row
+ * height estimate from the measured cell width.
  */
 export function useCardGridMetrics(
   measureRef: RefObject<HTMLElement | null>,
@@ -19,9 +20,10 @@ export function useCardGridMetrics(
   layoutSignal: number,
   /** A fixed column count (the touch layout switch); the width-derived count and the Settings cap do not apply. */
   forcedCols?: number,
-): { gridCols: number; rowHeightEst: number } {
+): { gridCols: number; rowHeightEst: number; containerWidthPx: number } {
   const maxCols = useAuthStore(s => clampLibraryGridMaxColumns(s.libraryGridMaxColumns));
   const [gridCols, setGridCols] = useState(4);
+  const [containerWidthPx, setContainerWidthPx] = useState(0);
   const [rowHeightEst, setRowHeightEst] = useState(() =>
     estimateRowHeightPx(
       computeCellWidthPx(960, clampLibraryGridMaxColumns(useAuthStore.getState().libraryGridMaxColumns)),
@@ -37,6 +39,7 @@ export function useCardGridMetrics(
       const w = el.clientWidth;
       const cols = forcedCols ?? computeCardGridColumnCount(w, maxCols);
       setGridCols(cols);
+      setContainerWidthPx(w);
       setRowHeightEst(estimateRowHeightPx(computeCellWidthPx(w, cols), variant));
     };
     onResize();
@@ -45,5 +48,5 @@ export function useCardGridMetrics(
     return () => ro.disconnect();
   }, [observerEnabled, variant, layoutSignal, maxCols, forcedCols, measureRef]);
 
-  return { gridCols, rowHeightEst };
+  return { gridCols, rowHeightEst, containerWidthPx };
 }

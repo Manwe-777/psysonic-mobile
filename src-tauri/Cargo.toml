@@ -67,7 +67,7 @@ biquad = "0.6"
 ringbuf = "0.5"
 tauri-plugin-window-state = "2.4.1"
 tauri-plugin-process = "2"
-tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "zip"] }
+tauri-plugin-updater = { version = "2.14.1", default-features = false, features = ["rustls-tls", "zip"] }
 souvlaki = { version = "0.8", default-features = false, features = ["use_zbus"] }
 discord-rich-presence = "1.1"
 url = "2"
@@ -104,9 +104,8 @@ objc2-foundation = { version = "0.3", default-features = false, features = ["std
 block2 = "0.6"
 
 [target.'cfg(target_os = "android")'.dependencies]
-# The activity context for cpal's AAudio backend (see src/android/context.rs); same tao as tauri.
-ndk-context = "0.1"
-tao = "0.35"
+# The activity for the certificate verifier (see src/android/context.rs); same tao as tauri.
+tao = "0.37"
 # reqwest checks certificates through Android's own verifier; it needs the activity too.
 jni = { version = "0.22", default-features = false }
 rustls-platform-verifier = "0.7"

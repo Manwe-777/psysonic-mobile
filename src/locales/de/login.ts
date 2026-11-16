@@ -10,6 +10,7 @@ export const login = {
   password: 'Passwort',
   showPassword: 'Passwort anzeigen',
   hidePassword: 'Passwort verstecken',
+  passwordEdgeSpace: 'Das Passwort beginnt oder endet mit einem Leerzeichen. Entferne es, wenn es nicht zum Passwort gehört.',
   connect: 'Verbinden',
   connecting: 'Verbinde…',
   connected: 'Verbunden!',
