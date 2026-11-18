@@ -13,6 +13,8 @@ import {
   type ParsedTrackEnrichment,
 } from '@/lib/library/trackEnrichment';
 import i18n from '@/lib/i18n';
+import { formatChannelLayout, type ChannelLayout } from '@/lib/media/channelLayout';
+import { songChannelCount } from '@/features/playback/hooks/useSongInfoData';
 
 function formatSize(bytes?: number): string | null {
   if (!bytes) return null;
@@ -65,21 +67,24 @@ interface SongInfoRowsProps {
   song: SubsonicSong;
   enrichment: ParsedTrackEnrichment | null;
   absolutePath: string | null;
+  /** Verified speaker layout of the playing original file (see `useSongInfoData`). */
+  channelLayout?: ChannelLayout;
   /** How Title / Artist / Album are copied. */
   copyGesture: 'dblclick' | 'click';
 }
 
 /** The table rows of the Song Info dialog, shared by the desktop modal and the touch sheet. */
-export default function SongInfoRows({ song, enrichment, absolutePath, copyGesture }: SongInfoRowsProps) {
+export default function SongInfoRows({ song, enrichment, absolutePath, channelLayout, copyGesture }: SongInfoRowsProps) {
   const { t } = useTranslation();
 
-  const channels = song.channelCount === 1
-    ? t('songInfo.mono')
-    : song.channelCount === 2
-      ? t('songInfo.stereo')
-      : song.channelCount
-        ? `${song.channelCount} ch`
-        : null;
+  const sourceChannelCount = songChannelCount(song);
+  const channels = channelLayout
+    ? formatChannelLayout(channelLayout)
+    : sourceChannelCount === 1
+      ? t('songInfo.mono')
+      : sourceChannelCount === 2
+        ? t('songInfo.stereo')
+        : sourceChannelCount != null ? `${sourceChannelCount} ch` : null;
 
   const trackLabel = song.discNumber && song.discNumber > 1
     ? `${song.discNumber} – ${song.track}`

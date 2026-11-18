@@ -59,7 +59,7 @@ import { useNowPlayingPrewarm } from '@/features/nowPlaying';
 import { useOfflineAutoNav } from '@/features/offline';
 import { useOfflineLibraryFilterSuspend } from '@/features/offline';
 import { AppShellQueueResizerSeam } from '@/app/AppShellQueueResizerSeam';
-import { IS_ANDROID, IS_IOS, IS_LINUX, IS_MACOS, IS_MOBILE_SHELL } from '@/lib/util/platform';
+import { IS_ANDROID, IS_IOS, IS_LINUX, IS_MACOS, IS_MOBILE_SHELL, IS_WINDOWS } from '@/lib/util/platform';
 import {
   MobileActionSheet,
   MobileMiniPlayer,
@@ -111,7 +111,7 @@ export function AppShell() {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const isWindowFullscreen = useWindowFullscreenState();
-  const { isTilingWm, linuxCustomTitlebarActive } = usePlatformShellSetup();
+  const { isTilingWm, customTitlebarActive } = usePlatformShellSetup();
 
   // Orbit session hooks: idle until the local store marks a role.
   useOrbitHost();
@@ -272,17 +272,28 @@ export function AppShell() {
     prepareTouchDocument();
   }, []);
 
-  // Custom in-page titlebar. Linux: opt-in, native decorations off. macOS:
-  // always on — `titleBarStyle: Overlay` lets the webview reach the top edge
-  // with the native traffic lights floating over our themed bar, so the bar
-  // follows the active theme instead of the grey system titlebar (#1198).
-  // Hidden in native fullscreen (the OS chrome is gone there anyway).
+  // Custom in-page titlebar. Linux and Windows: opt-in, native decorations
+  // off (#1859). macOS: always on — `titleBarStyle: Overlay` lets the webview
+  // reach the top edge with the native traffic lights floating over our themed
+  // bar, so the bar follows the active theme instead of the grey system
+  // titlebar (#1198). Hidden in native fullscreen (the OS chrome is gone there
+  // anyway).
   const showLinuxTitlebar = IS_LINUX
-    && linuxCustomTitlebarActive
+    && customTitlebarActive
     && !isWindowFullscreen
     && !isTilingWm;
+  const showWindowsTitlebar = IS_WINDOWS
+    && customTitlebarActive
+    && !isWindowFullscreen;
   const showMacTitlebar = IS_MACOS && !isWindowFullscreen;
-  const showTitlebar = showLinuxTitlebar || showMacTitlebar;
+  const showTitlebar = showLinuxTitlebar || showWindowsTitlebar || showMacTitlebar;
+  const titlebarPlatform = showMacTitlebar
+    ? 'macos'
+    : showLinuxTitlebar
+      ? 'linux'
+      : showWindowsTitlebar
+        ? 'windows'
+        : undefined;
 
   const globalOverlays = (
     <>
@@ -366,7 +377,7 @@ export function AppShell() {
       data-mobile={isMobile || undefined}
       data-mobile-player={isMobilePlayer || undefined}
       data-titlebar={showTitlebar || undefined}
-      data-titlebar-platform={showMacTitlebar ? 'macos' : showLinuxTitlebar ? 'linux' : undefined}
+      data-titlebar-platform={titlebarPlatform}
       data-fullscreen={isWindowFullscreen || undefined}
       style={{
         '--sidebar-width': isMobile ? '0px' : (isSidebarCollapsed ? '72px' : 'clamp(200px, 15vw, 220px)'),

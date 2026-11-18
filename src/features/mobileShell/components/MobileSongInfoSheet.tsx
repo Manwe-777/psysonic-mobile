@@ -8,7 +8,7 @@ import MobileSheet from '@/features/mobileShell/components/MobileSheet';
  */
 export default function MobileSongInfoSheet() {
   const { t } = useTranslation();
-  const { isOpen, close, song, enrichment, loading, absolutePath } = useSongInfoData();
+  const { isOpen, close, song, enrichment, loading, absolutePath, channelLayout } = useSongInfoData();
 
   if (!isOpen) return null;
 
@@ -18,7 +18,7 @@ export default function MobileSongInfoSheet() {
       {!loading && song && (
         <table className="song-info-table song-info-table--touch">
           <tbody>
-            <SongInfoRows song={song} enrichment={enrichment} absolutePath={absolutePath} copyGesture="click" />
+            <SongInfoRows song={song} enrichment={enrichment} absolutePath={absolutePath} channelLayout={channelLayout} copyGesture="click" />
           </tbody>
         </table>
       )}

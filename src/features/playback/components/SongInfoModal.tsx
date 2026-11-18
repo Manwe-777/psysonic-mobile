@@ -7,7 +7,7 @@ import SongInfoRows from '@/features/playback/components/SongInfoRows';
 
 export default function SongInfoModal() {
   const { t } = useTranslation();
-  const { isOpen, close, song, enrichment, loading, absolutePath } = useSongInfoData();
+  const { isOpen, close, song, enrichment, loading, absolutePath, channelLayout } = useSongInfoData();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +35,7 @@ export default function SongInfoModal() {
           {!loading && song && (
             <table className="song-info-table">
               <tbody>
-                <SongInfoRows song={song} enrichment={enrichment} absolutePath={absolutePath} copyGesture="dblclick" />
+                <SongInfoRows song={song} enrichment={enrichment} absolutePath={absolutePath} channelLayout={channelLayout} copyGesture="dblclick" />
               </tbody>
             </table>
           )}
