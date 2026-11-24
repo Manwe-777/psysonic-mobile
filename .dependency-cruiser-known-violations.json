@@ -30737,5 +30737,243 @@
       "severity": "error",
       "name": "no-deep-cross-feature"
     }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/applyServerPlayQueue.ts",
+    "unresolvedTo": "@/features/playback/store/applyServerPlayQueue",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/pausedRestorePrepare.ts",
+    "unresolvedTo": "@/features/playback/store/pausedRestorePrepare",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/playbackProgress.ts",
+    "unresolvedTo": "@/features/playback/store/playbackProgress",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/playerStore.ts",
+    "unresolvedTo": "@/features/playback/store/playerStore",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/playQueueSyncSettingsStore.ts",
+    "unresolvedTo": "@/features/playback/store/playQueueSyncSettingsStore",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/queuePlaybackIdle.ts",
+    "unresolvedTo": "@/features/playback/store/queuePlaybackIdle",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/queueSync.ts",
+    "unresolvedTo": "@/features/playback/store/queueSync",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/queueTrackResolver.ts",
+    "unresolvedTo": "@/features/playback/store/queueTrackResolver",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/queueTrackView.ts",
+    "unresolvedTo": "@/features/playback/store/queueTrackView",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/store/queueUndo.ts",
+    "unresolvedTo": "@/features/playback/store/queueUndo",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/hubClient.ts",
+    "to": "src/features/playback/utils/playback/playbackServer.ts",
+    "unresolvedTo": "@/features/playback/utils/playback/playbackServer",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/HubDevicePicker.tsx",
+    "to": "src/features/playback/hooks/usePlayerBarAnchoredPopover.ts",
+    "unresolvedTo": "@/features/playback/hooks/usePlayerBarAnchoredPopover",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/HubPlayingOnStrip.tsx",
+    "to": "src/features/playback/hooks/usePlayerBarAnchoredPopover.ts",
+    "unresolvedTo": "@/features/playback/hooks/usePlayerBarAnchoredPopover",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/features/hub/usePlayerView.ts",
+    "to": "src/features/playback/store/playerStore.ts",
+    "unresolvedTo": "@/features/playback/store/playerStore",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-deep-cross-feature"
+    }
   }
 ]
