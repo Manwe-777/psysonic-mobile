@@ -6,6 +6,7 @@ import {
   DEFAULT_DISCORD_TEMPLATE_STATE,
 } from '@/store/authStoreDefaults';
 import { useThemeStore } from '@/store/themeStore';
+import { HubSettings } from '@/features/hub';
 import SettingsSubSection from '@/features/settings/components/SettingsSubSection';
 import { SettingsGroup } from '@/features/settings/components/SettingsGroup';
 import { SettingsToggle } from '@/features/settings/components/SettingsToggle';
@@ -111,6 +112,8 @@ export function IntegrationsTab() {
           </SettingsGroup>
         </div>
       </SettingsSubSection>
+
+      <HubSettings />
 
       {/* Music Network — scrobbling + enrichment across multiple services */}
       <MusicNetworkSection />

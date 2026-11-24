@@ -107,15 +107,16 @@ export default function MobileTabBar() {
               ))}
             </button>
           ))}
+          {/* Search is the fifth tab: it opens the search overlay over the current page. */}
+          <button
+            type="button"
+            className="mobile-tabbar__tab mobile-tabbar__search"
+            onClick={openSearch}
+          >
+            <Search size={23} strokeWidth={1.8} aria-hidden="true" />
+            <span>{t('search.title')}</span>
+          </button>
         </nav>
-        <button
-          type="button"
-          className="mobile-tabbar__search mobile-glass"
-          aria-label={t('search.title')}
-          onClick={openSearch}
-        >
-          <Search size={23} strokeWidth={2} aria-hidden="true" />
-        </button>
       </div>
       {searchOpen && <MobileSearchOverlay initialQuery={searchStart} onClose={() => setSearchOpen(false)} />}
     </>

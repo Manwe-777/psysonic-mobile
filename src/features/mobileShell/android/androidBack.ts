@@ -6,9 +6,9 @@
  */
 import { IS_ANDROID } from '@/lib/util/platform';
 
-/** Overlays that close on Escape: sheets, the context menu, the "…" menu, search, theme preview. */
+/** Overlays that close on Escape: sheets, the context menu, the "…" menu, search, theme preview, the hub QR scanner. */
 export const OVERLAY_SELECTOR =
-  '.mobile-sheet, .context-menu, .mobile-more-menu__list, .mobile-search-overlay, .mobile-theme-preview';
+  '.mobile-sheet, .context-menu, .mobile-more-menu__list, .mobile-search-overlay, .mobile-theme-preview, .mobile-hub-scanner';
 
 declare global {
   interface Window {

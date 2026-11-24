@@ -9,6 +9,9 @@ import { usePlaybackTrackCoverRef } from '@/cover/useLibraryCoverRef';
 import { useCachedUrl } from '@/ui/CachedImage';
 import { CoverArtImage } from '@/cover/CoverArtImage';
 import { radioCoverRef } from '@/cover/ref';
+import { useHubRemote, useViewPlaying, useViewTrack } from '@/features/hub';
+import MobileHubButton from './MobileHubButton';
+import { useMobileHubSetUp } from '@/features/mobileShell/hooks/useMobileHubSetUp';
 
 function MiniProgress() {
   const progress = useSyncExternalStore(
@@ -30,11 +33,14 @@ const SWIPE_OPEN_PX = 30;
 export default function MobileMiniPlayer() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const currentTrack = usePlayerStore(s => s.currentTrack);
+  // While another device plays through the hub, the bar shows and controls that device.
+  const currentTrack = useViewTrack();
+  const hubRemote = useHubRemote();
+  const hubSetUp = useMobileHubSetUp();
   const currentRadio = usePlayerStore(s => s.currentRadio);
   // An Orbit guest follows the host; skipping would only stop the local player.
   const guestFollowsHost = useOrbitStore(s => isOrbitGuestFollowingHost(s.role, s.phase));
-  const isPlaying = usePlayerStore(s => s.isPlaying);
+  const isPlaying = useViewPlaying();
   const togglePlay = usePlayerStore(s => s.togglePlay);
   const next = usePlayerStore(s => s.next);
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -47,7 +53,9 @@ export default function MobileMiniPlayer() {
   if (!currentTrack && !currentRadio) return null;
 
   const title = currentRadio ? currentRadio.name : currentTrack?.title ?? '';
-  const subtitle = currentRadio ? t('sidebar.radio') : currentTrack?.artist ?? '';
+  const subtitle = hubRemote
+    ? t('player.hubPlayingOn', { name: hubRemote.device.name })
+    : currentRadio ? t('sidebar.radio') : currentTrack?.artist ?? '';
 
   return (
     <div
@@ -84,7 +92,7 @@ export default function MobileMiniPlayer() {
         </span>
         <span className="mobile-miniplayer__text">
           <span className="mobile-miniplayer__title">{title}</span>
-          <span className="mobile-miniplayer__subtitle">{subtitle}</span>
+          <span className={`mobile-miniplayer__subtitle${hubRemote ? ' is-hub' : ''}`}>{subtitle}</span>
         </span>
       </button>
       <button
@@ -97,7 +105,9 @@ export default function MobileMiniPlayer() {
           ? <Pause size={24} fill="currentColor" aria-hidden="true" />
           : <Play size={24} fill="currentColor" aria-hidden="true" />}
       </button>
-      {!currentRadio && !guestFollowsHost && (
+      {/* With a hub set up, the hub button takes the place of Next. */}
+      {hubSetUp && <MobileHubButton className="mobile-icon-btn mobile-miniplayer__hub" />}
+      {!hubSetUp && !currentRadio && !guestFollowsHost && (
         <button
           type="button"
           className="mobile-icon-btn mobile-miniplayer__next"
