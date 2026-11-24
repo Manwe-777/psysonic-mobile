@@ -5,6 +5,8 @@ import { useHubStore } from './hubStore';
 import { HubConnectionFields } from './HubConnectionFields';
 import { HubDeviceList } from './HubDeviceList';
 import { HubStatusBadge } from './HubStatusBadge';
+import { IS_MOBILE_SHELL } from '@/lib/util/platform';
+import { HubQrScanButton } from './HubQrScanButton';
 
 /** Settings → Integrations → Realtime hub: connection, connected devices, and settings sync. */
 export function HubSettings() {
@@ -28,6 +30,7 @@ export function HubSettings() {
             checked={enabled}
             onChange={set.setEnabled}
           />
+          {IS_MOBILE_SHELL && <HubQrScanButton />}
           {enabled && <HubConnectionFields />}
         </SettingsGroup>
 

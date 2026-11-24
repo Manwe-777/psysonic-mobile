@@ -30,6 +30,10 @@
     "core:webview:allow-set-webview-zoom",
     "core:webview:allow-set-webview-focus",
     "process:allow-restart",
-    "clipboard-manager:allow-write-text"
+    "clipboard-manager:allow-write-text",
+    "barcode-scanner:allow-scan",
+    "barcode-scanner:allow-cancel",
+    "barcode-scanner:allow-check-permissions",
+    "barcode-scanner:allow-request-permissions"
   ]
 }

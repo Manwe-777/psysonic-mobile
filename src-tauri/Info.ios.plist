@@ -59,6 +59,8 @@
 	</array>
 	<key>NSSiriUsageDescription</key>
 	<string>Psysonic uses Siri to play music from your library when you ask for it.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Psysonic uses the camera only to scan the QR code of your Psysonic Hub.</string>
 	<!-- Scene lifecycle, which CarPlay requires. tao (0.35) only attaches its window to a
 	     scene when multiple scenes are enabled, so the flag is on; the phone scene uses
 	     tao's own delegate. -->

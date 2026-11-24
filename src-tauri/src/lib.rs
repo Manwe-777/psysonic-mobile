@@ -522,6 +522,10 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init());
 
+    // The hub's QR code on the phones (src/features/hub/scanHubQr.ts).
+    #[cfg(mobile)]
+    let builder = builder.plugin(tauri_plugin_barcode_scanner::init());
+
     #[cfg(target_os = "linux")]
     let builder = builder.plugin(
         tauri_plugin_single_instance::Builder::new()
