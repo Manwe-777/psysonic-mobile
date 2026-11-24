@@ -2,9 +2,17 @@
    Only `[data-mobile-app]` selectors: desktop builds never set the attribute. */
 
 html[data-mobile-app] {
-  --mobile-bar-gap: 10px;
-  --mobile-tabbar-height: 64px;
-  --mobile-miniplayer-height: 64px;
+  /* Player bar and tab bar form one block (no gap between them). */
+  --mobile-bar-gap: 0px;
+  --mobile-tabbar-height: 52px;
+  --mobile-miniplayer-height: 52px;
+  --mobile-block-radius: 14px;
+  /* Corners in the touch shell are about half as round as on the desktop (factor 0.45);
+     the rules in this folder use the scaled values directly, shared components read these. */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 11px;
   /* One-row height of both bars while the page scrolls down (`data-mobile-bars`). */
   --mobile-folded-height: 52px;
   --mobile-bars-motion: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -82,7 +90,7 @@ html[data-mobile-app] .login-subtitle {
 
 html[data-mobile-app] #login-connect-btn {
   min-height: 50px;
-  border-radius: 14px;
+  border-radius: 6px;
   font-size: 17px !important;
 }
 
@@ -172,7 +180,7 @@ html[data-mobile-app] .mobile-search-overlay {
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: 22px;
+  border-radius: 10px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--mobile-glass-bg);
   -webkit-backdrop-filter: blur(16px);
@@ -266,7 +274,7 @@ html[data-mobile-app] .mobile-search-overlay {
   min-height: 50px;
   padding: 0 16px;
   border: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   color: var(--accent);
   font: inherit;
@@ -287,7 +295,7 @@ html[data-mobile-app] .mobile-search-overlay {
 .mobile-pill-btn {
   height: 36px;
   padding: 0 16px;
-  border-radius: 18px;
+  border-radius: 8px;
   border: none;
   background: color-mix(in srgb, var(--text-primary) 10%, transparent);
   color: var(--text-primary);
@@ -302,7 +310,7 @@ html[data-mobile-app] .mobile-search-overlay {
   width: 48px;
   height: 48px;
   border: none;
-  border-radius: 24px;
+  border-radius: 11px;
   background: none;
   color: var(--text-primary);
   display: inline-flex;
@@ -340,7 +348,9 @@ html[data-mobile-app] .mobile-search-overlay {
 .mobile-status-dot[data-status='checking'] { background: var(--warning); }
 .mobile-status-dot[data-status='disconnected'] { background: var(--danger); }
 
-/* ─── Tab bar ─── */
+/* ─── Bottom bars: one glass block ───
+   The player bar sits straight on the tab bar: one surface, rounded at its outer
+   corners only, with a hairline between the two rows. Search is the fifth tab. */
 .mobile-tabbar {
   position: fixed;
   left: 12px;
@@ -348,49 +358,49 @@ html[data-mobile-app] .mobile-search-overlay {
   bottom: var(--mobile-bottom-edge);
   height: var(--mobile-tabbar-height);
   display: flex;
-  justify-content: space-between;
-  gap: var(--mobile-bar-gap);
   z-index: 150;
-  /* Folded, the player bar sits in the middle of this row: let taps through to it. */
-  pointer-events: none;
-  transition: height var(--mobile-bars-motion);
-}
-
-.mobile-tabbar > * {
-  pointer-events: auto;
+  transition: height var(--mobile-bars-motion), opacity 0.25s;
 }
 
 .mobile-tabbar__tabs {
-  flex: none;
-  width: calc(100% - var(--mobile-tabbar-height) - var(--mobile-bar-gap));
-  transition: width var(--mobile-bars-motion), padding var(--mobile-bars-motion);
+  flex: 1;
+  min-width: 0;
   height: 100%;
-  border-radius: 32px;
+  border-radius: var(--mobile-block-radius);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 6px;
+  padding: 0 4px;
   box-sizing: border-box;
+  transition: border-radius var(--mobile-bars-motion);
+}
+
+/* With the player bar above, the tab row is the block's lower half. */
+html[data-mobile-app]:has(.mobile-miniplayer) .mobile-tabbar__tabs {
+  border-radius: 0 0 var(--mobile-block-radius) var(--mobile-block-radius);
+  border-top-color: var(--mobile-row-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 
 .mobile-tabbar__tab {
+  position: relative;
   flex: 1;
   min-width: 0;
-  height: 52px;
+  height: calc(var(--mobile-tabbar-height) - 8px);
   border: none;
-  border-radius: 26px;
+  border-radius: calc(var(--mobile-block-radius) - 4px);
   background: none;
   color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
+  padding: 0;
   font: inherit;
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: flex-grow var(--mobile-bars-motion), flex-basis var(--mobile-bars-motion), opacity 0.3s, visibility 0s;
 }
 
 .mobile-tabbar__tab span {
@@ -405,37 +415,24 @@ html[data-mobile-app] .mobile-search-overlay {
   color: var(--accent);
 }
 
-.mobile-tabbar__search {
-  flex: none;
-  width: var(--mobile-tabbar-height);
-  height: var(--mobile-tabbar-height);
-  border-radius: 32px;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  cursor: pointer;
-  transition: width var(--mobile-bars-motion), height var(--mobile-bars-motion);
-}
-
-/* ─── Mini player ─── */
+/* ─── Mini player (the block's upper half) ─── */
 .mobile-miniplayer {
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: calc(var(--mobile-bottom-edge) + var(--mobile-tabbar-height) + var(--mobile-bar-gap));
+  bottom: calc(var(--mobile-bottom-edge) + var(--mobile-tabbar-height));
   height: var(--mobile-miniplayer-height);
-  border-radius: 32px;
+  border-radius: var(--mobile-block-radius) var(--mobile-block-radius) 0 0;
+  border-bottom: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 6px 0 8px;
+  padding: 0 4px 0 6px;
   box-sizing: border-box;
   overflow: hidden;
   z-index: 150;
-  transition: left var(--mobile-bars-motion), right var(--mobile-bars-motion),
-    bottom var(--mobile-bars-motion), height var(--mobile-bars-motion), border-radius var(--mobile-bars-motion);
+  transition: bottom var(--mobile-bars-motion), border-radius var(--mobile-bars-motion);
 }
 
 .mobile-miniplayer__open {
@@ -444,7 +441,7 @@ html[data-mobile-app] .mobile-search-overlay {
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   border: none;
   background: none;
   color: inherit;
@@ -456,9 +453,9 @@ html[data-mobile-app] .mobile-search-overlay {
 
 .mobile-miniplayer__cover {
   flex: none;
-  width: 46px;
-  height: 46px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
   overflow: hidden;
   background: var(--bg-hover);
   color: var(--text-muted);
@@ -489,20 +486,34 @@ html[data-mobile-app] .mobile-search-overlay {
 }
 
 .mobile-miniplayer__title {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .mobile-miniplayer__subtitle {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text-secondary);
+}
+
+/* Another device plays through the hub: the subtitle names it. */
+.mobile-miniplayer__subtitle.is-hub {
+  color: var(--accent);
+}
+
+.mobile-miniplayer .mobile-icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.mobile-miniplayer__hub.is-active {
+  color: var(--accent);
 }
 
 .mobile-miniplayer__progress {
   position: absolute;
-  left: 22px;
-  right: 22px;
+  left: 18px;
+  right: 18px;
   bottom: 0;
   height: 2px;
   border-radius: 1px;
@@ -518,74 +529,20 @@ html[data-mobile-app] .mobile-search-overlay {
   transform-origin: left center;
 }
 
-/* ─── Folded bars: one row while the page scrolls down ───
-   `data-mobile-bars` is set by `useCollapseBarsOnScroll`. The tab bar shrinks to its
-   first tab (Mainstage), the search button stays right, the player bar moves down
-   between them and drops its next button. */
-html[data-mobile-bars='collapsed'] .mobile-tabbar {
-  height: var(--mobile-folded-height);
-}
-
-html[data-mobile-bars='collapsed'] .mobile-tabbar__tabs {
-  width: var(--mobile-folded-height);
-  padding: 0;
-}
-
-html[data-mobile-bars='collapsed'] .mobile-tabbar__tab {
-  flex: 0 0 0;
-  overflow: hidden;
+/* ─── Folded: only the player row while the page scrolls down ───
+   `data-mobile-bars` is set by `useCollapseBarsOnScroll`. The tab row slides away and
+   the player bar drops to the bottom edge as a block of its own; scrolling back up
+   brings the tabs back. Without a player bar the tabs stay. */
+html[data-mobile-app][data-mobile-bars='collapsed']:has(.mobile-miniplayer) .mobile-tabbar {
+  height: 0;
   opacity: 0;
-  visibility: hidden;
-  transition: flex-grow var(--mobile-bars-motion), flex-basis var(--mobile-bars-motion), opacity 0.3s, visibility 0s linear 0.3s;
+  pointer-events: none;
 }
 
-html[data-mobile-bars='collapsed'] .mobile-tabbar__tab:first-child {
-  flex: 0 0 44px;
-  height: 44px;
-  margin: 0 auto;
-  opacity: 1;
-  visibility: visible;
-  transition: flex-grow var(--mobile-bars-motion), flex-basis var(--mobile-bars-motion);
-}
-
-/* Visually hidden, so the Mainstage button keeps its accessible name. */
-html[data-mobile-bars='collapsed'] .mobile-tabbar__tab:first-child span {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
-
-html[data-mobile-bars='collapsed'] .mobile-tabbar__search {
-  width: var(--mobile-folded-height);
-  height: var(--mobile-folded-height);
-}
-
-html[data-mobile-bars='collapsed'] .mobile-miniplayer {
-  left: calc(12px + var(--mobile-folded-height) + var(--mobile-bar-gap));
-  right: calc(12px + var(--mobile-folded-height) + var(--mobile-bar-gap));
+html[data-mobile-app][data-mobile-bars='collapsed'] .mobile-miniplayer {
   bottom: var(--mobile-bottom-edge);
-  height: var(--mobile-folded-height);
-  border-radius: 26px;
-}
-
-html[data-mobile-bars='collapsed'] .mobile-miniplayer__next {
-  display: none;
-}
-
-html[data-mobile-bars='collapsed'] .mobile-miniplayer__cover {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-}
-
-html[data-mobile-bars='collapsed'] .mobile-miniplayer__title {
-  font-size: 14px;
-}
-
-html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
-  font-size: 12px;
+  border-radius: var(--mobile-block-radius);
+  border-bottom: 1px solid var(--mobile-glass-border);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -629,7 +586,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 5px;
   background: color-mix(in srgb, var(--text-primary) 7%, transparent);
   font-size: 12px;
   color: var(--text-secondary);
@@ -697,7 +654,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   align-items: center;
   gap: 12px;
   padding: 0 14px;
-  border-radius: 16px;
+  border-radius: 7px;
   border: 1px solid var(--mobile-row-border);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -718,7 +675,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   flex: none;
   width: 36px;
   height: 36px;
-  border-radius: 18px;
+  border-radius: 8px;
   background: var(--accent-dim);
   color: var(--accent);
   display: flex;
@@ -735,7 +692,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   align-items: center;
   gap: 2px;
   padding: 0 14px 0 8px;
-  border-radius: 22px;
+  border-radius: 10px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--mobile-glass-bg);
   color: var(--text-primary);
@@ -780,7 +737,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
 }
 
 .app-shell[data-mobile-app] .album-card-cover {
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .app-shell[data-mobile-app] .album-card-info {
@@ -803,7 +760,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
 
 .app-shell[data-mobile-app] .album-card-new-badge {
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 3px 8px;
   font-size: 11px;
 }
@@ -847,17 +804,17 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   height: auto;
   aspect-ratio: 1 / 1;
   max-height: 460px;
-  border-radius: 24px;
+  border-radius: 11px;
   margin-bottom: 22px;
   overflow: visible;
 }
 
 .app-shell[data-mobile-app] .hero-bg-image {
-  border-radius: 24px;
+  border-radius: 11px;
 }
 
 .app-shell[data-mobile-app] .hero-overlay {
-  border-radius: 24px;
+  border-radius: 11px;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45));
 }
 
@@ -866,7 +823,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 11px;
 }
 
 .app-shell[data-mobile-app] .hero-bg-clip .hero-bg-image {
@@ -877,7 +834,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
 .app-shell[data-mobile-app] .hero-cover-mobile {
   position: absolute;
   inset: 0;
-  border-radius: 24px;
+  border-radius: 11px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -905,7 +862,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   inset: auto 0 0 0;
   padding: 14px 16px 14px 20px;
   align-items: center;
-  border-radius: 0 0 24px 24px;
+  border-radius: 0 0 11px 11px;
   background: color-mix(in srgb, var(--bg-sidebar) 80%, transparent);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
@@ -993,7 +950,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
 .app-shell[data-mobile-app] .hero-actions-mobile .album-icon-btn {
   width: 40px;
   height: 40px;
-  border-radius: 20px;
+  border-radius: 9px;
 }
 
 .app-shell[data-mobile-app] .hero-actions-mobile .album-icon-btn--queue {
@@ -1045,7 +1002,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  border-radius: 12px;
+  border-radius: 5px;
   border: none;
   background: var(--bg-card);
   color: var(--text-muted);
@@ -1071,7 +1028,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   height: 40px;
   padding: 0 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-card);
   box-sizing: border-box;
 }
@@ -1088,7 +1045,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
 .mobile-list-group {
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: 7px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -1184,7 +1141,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   position: relative;
   width: 51px;
   height: 31px;
-  border-radius: 16px;
+  border-radius: 7px;
   border: none;
   padding: 0;
   background: color-mix(in srgb, var(--text-primary) 18%, transparent);
@@ -1202,7 +1159,7 @@ html[data-mobile-bars='collapsed'] .mobile-miniplayer__subtitle {
   left: 2px;
   width: 27px;
   height: 27px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
@@ -1252,7 +1209,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   max-height: calc(100% - env(safe-area-inset-top, 0px) - 12px);
   display: flex;
   flex-direction: column;
-  border-radius: 28px 28px 0 0;
+  border-radius: 13px 13px 0 0;
   /* Glass themes give the sidebar a see-through colour; the opaque app colour underneath
      keeps the page behind the sheet from showing through. */
   background: linear-gradient(var(--bg-sidebar), var(--bg-sidebar)), var(--bg-app);
@@ -1331,7 +1288,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   align-items: center;
   gap: 14px;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 7px;
   border: none;
   background: var(--bg-card);
   color: var(--text-primary);
@@ -1344,7 +1301,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   flex: none;
   width: 48px;
   height: 48px;
-  border-radius: 24px;
+  border-radius: 11px;
   background: var(--accent-dim);
   color: var(--accent);
   display: flex;
@@ -1488,7 +1445,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   flex: none;
   width: min(100cqw, 100cqh, 420px);
   height: min(100cqw, 100cqh, 420px);
-  border-radius: 20px;
+  border-radius: 9px;
   overflow: hidden;
   background: var(--bg-card);
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
@@ -1611,7 +1568,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
 
 .mobile-player__format {
   padding: 3px 10px;
-  border-radius: 7px;
+  border-radius: 3px;
   background: color-mix(in srgb, var(--text-primary) 10%, transparent);
   font-size: 11px;
   letter-spacing: 0.4px;
@@ -1626,7 +1583,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
 .mobile-player__play {
   width: 68px;
   height: 68px;
-  border-radius: 34px;
+  border-radius: 15px;
   border: none;
   background: var(--accent);
   color: var(--text-on-accent, var(--bg-app));
@@ -1651,7 +1608,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   align-items: center;
   gap: 6px;
   padding: 0 13px;
-  border-radius: 18px;
+  border-radius: 8px;
   border: none;
   background: color-mix(in srgb, var(--text-primary) 8%, transparent);
   color: var(--text-secondary);
@@ -1685,7 +1642,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: none;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1752,7 +1709,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
 .mobile-album__cover {
   width: min(270px, 68vw);
   aspect-ratio: 1;
-  border-radius: 16px;
+  border-radius: 7px;
   overflow: hidden;
   background: var(--bg-card);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
@@ -1825,7 +1782,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   justify-content: center;
   gap: 8px;
   border: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   color: var(--accent);
   font: inherit;
@@ -2020,7 +1977,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   width: 44px;
   height: 44px;
   padding: 0;
-  border-radius: 22px;
+  border-radius: 10px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--mobile-glass-bg);
   color: var(--text-primary);
@@ -2051,7 +2008,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
   flex: none;
   height: 34px;
   padding: 0 14px;
-  border-radius: 17px;
+  border-radius: 8px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -2066,7 +2023,7 @@ html[data-mobile-app]:has(.mobile-sheet-backdrop) :is(
 .app-shell[data-mobile-app] .artist-ext-link {
   height: 34px;
   padding: 0 14px;
-  border-radius: 17px;
+  border-radius: 8px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -2194,14 +2151,14 @@ html[data-mobile-app] .app-shell {
   grid-auto-flow: column;
   gap: 2px;
   padding: 2px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--bg-card);
 }
 
 .mobile-segmented__item {
   height: 32px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   color: var(--text-secondary);
   font: inherit;
@@ -2283,7 +2240,7 @@ html[data-mobile-app] .app-shell {
   width: 286px;
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
+  border-radius: 9px;
   overflow: hidden;
   background: color-mix(in srgb, var(--bg-elevated, var(--bg-card)) 94%, transparent);
   border: 1px solid var(--mobile-glass-border);
@@ -2333,7 +2290,7 @@ html[data-mobile-app] .app-shell {
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px);
   overflow-y: auto;
   padding: 0;
-  border-radius: 20px;
+  border-radius: 9px;
   background: color-mix(in srgb, var(--bg-elevated, var(--bg-card)) 94%, transparent);
   border: 1px solid var(--mobile-glass-border);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
@@ -2413,7 +2370,7 @@ html[data-mobile-app] .app-shell {
   max-height: 240px;
   margin: 0 0 10px;
   padding: 0;
-  border-radius: 14px;
+  border-radius: 6px;
   border: none;
   background: color-mix(in srgb, var(--bg-app) 45%, transparent);
   box-shadow: none;
@@ -2473,7 +2430,7 @@ html[data-mobile-app] .app-shell {
   flex: none;
   width: 46px;
   height: 46px;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   background: var(--bg-card);
   color: var(--text-muted);
@@ -2558,7 +2515,7 @@ html[data-mobile-app] .app-shell {
   position: relative;
   transform: translateY(var(--lift-dy, 0px)) scale(1.03);
   background: var(--bg-elevated, var(--bg-card));
-  border-radius: 12px;
+  border-radius: 5px;
   border-bottom-color: transparent;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   transition: box-shadow 0.15s;
@@ -2611,7 +2568,7 @@ html[data-mobile-app] .app-shell {
   right: 0;
   top: var(--swipe-top, 0px);
   height: var(--swipe-h, 100%);
-  border-radius: 12px;
+  border-radius: 5px;
   background: color-mix(in srgb, var(--swipe-color) 40%, transparent);
 }
 
@@ -2715,7 +2672,7 @@ html[data-mobile-app] .app-shell {
 .queue-ring__label {
   transform: translate(-50%, -100%);
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: 450px;
   background: var(--accent);
   color: var(--text-on-accent, var(--bg-app));
   font-size: 14px;
@@ -2757,7 +2714,7 @@ html[data-mobile-app] .app-shell {
   align-items: center;
   gap: 12px;
   padding: 10px 10px 10px 16px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-elevated, var(--bg-card));
   color: var(--text-primary);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -2777,7 +2734,7 @@ html[data-mobile-app] .app-shell {
   min-height: 44px;
   padding: 0 14px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 4px;
   background: transparent;
   color: var(--accent);
   font-size: 14px;
@@ -2906,7 +2863,7 @@ html[data-mobile-app] ::-webkit-scrollbar {
   height: 36px;
   min-width: 36px;
   padding: 0 12px;
-  border-radius: 18px;
+  border-radius: 8px;
   border: 1px solid var(--mobile-glass-border);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -2989,7 +2946,7 @@ html[data-mobile-app] ::-webkit-scrollbar {
   height: 32px;
   padding: 0;
   border: none;
-  border-radius: 16px;
+  border-radius: 7px;
   background: none;
   color: var(--text-secondary);
 }
@@ -3035,7 +2992,7 @@ html[data-mobile-app] ::-webkit-scrollbar {
 .app-shell[data-mobile-app] .mp-filter-btn {
   height: 34px;
   padding: 0 14px;
-  border-radius: 17px;
+  border-radius: 8px;
   font-size: 14px;
   opacity: 1;
 }
@@ -3104,7 +3061,7 @@ html[data-mobile-app] ::-webkit-scrollbar {
 .app-shell[data-mobile-app] .mp-album-row img {
   width: 56px;
   height: 56px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .app-shell[data-mobile-app] .mp-album-actions,
@@ -3201,7 +3158,7 @@ html[data-mobile-app] .mobile-sheet .lyrics-status {
 .mobile-artist__hero {
   position: relative;
   height: 300px;
-  border-radius: 24px;
+  border-radius: 11px;
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -3298,7 +3255,7 @@ html[data-mobile-app] .mobile-sheet .lyrics-status {
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: 6px;
+  border-radius: 3px;
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -3379,7 +3336,7 @@ html[data-mobile-app] .mobile-sheet .lyrics-status {
   width: 44px;
   height: 44px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 3px;
 }
 
 .app-shell[data-mobile-app] .album-detail .tracklist {
@@ -3482,7 +3439,7 @@ html[data-mobile-app] .mobile-sheet .lyrics-status {
   box-sizing: border-box;
   padding: 16px;
   border: none;
-  border-radius: 16px;
+  border-radius: 7px;
   background: var(--bg-card);
   color: var(--text-primary);
   font: inherit;
@@ -3542,7 +3499,7 @@ button.mobile-artist-bio__card:active {
   aspect-ratio: 1;
   padding: 0;
   border: none;
-  border-radius: 16px;
+  border-radius: 7px;
   overflow: hidden;
   background: var(--bg-card);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
@@ -3585,7 +3542,7 @@ button.mobile-artist-bio__card:active {
 
 .mobile-form-group {
   flex: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -3641,7 +3598,7 @@ button.mobile-artist-bio__card:active {
   width: 100%;
   min-height: 52px;
   justify-content: center;
-  border-radius: 26px;
+  border-radius: 12px;
   font-size: 17px;
 }
 
@@ -3694,7 +3651,7 @@ button.mobile-artist-bio__card:active {
 .app-shell[data-mobile-app] .shared-server__list {
   gap: 0;
   padding: 0;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -3727,7 +3684,7 @@ button.mobile-artist-bio__card:active {
   display: grid;
   place-items: center;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--accent) 14%, var(--bg-app));
   color: var(--accent);
 }
@@ -3807,7 +3764,7 @@ button.mobile-artist-bio__card:active {
 .mobile-downloads__list {
   display: flex;
   flex-direction: column;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -3827,7 +3784,7 @@ button.mobile-artist-bio__card:active {
 .mobile-detail-sheet__cover {
   width: 84px;
   height: 84px;
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .mobile-detail-sheet__heading {
@@ -3858,7 +3815,7 @@ button.mobile-artist-bio__card:active {
 .mobile-detail-sheet__actions .btn {
   min-height: 48px;
   justify-content: center;
-  border-radius: 24px;
+  border-radius: 11px;
   font-size: 16px;
 }
 
@@ -3940,7 +3897,7 @@ button.mobile-artist-bio__card:active {
   margin: 0;
   padding: 0;
   list-style: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -3975,7 +3932,7 @@ button.mobile-artist-bio__card:active {
   width: 44px;
   height: 44px;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 3px;
   background: var(--bg-app);
   color: var(--text-muted);
 }
@@ -4018,7 +3975,7 @@ button.mobile-artist-bio__card:active {
 
 .mobile-radio-list {
   margin-bottom: 16px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -4036,7 +3993,7 @@ button.mobile-artist-bio__card:active {
   position: relative;
   z-index: 5;
   transform: translateY(var(--lift-dy, 0px)) scale(1.03);
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-elevated, var(--bg-card));
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
@@ -4083,7 +4040,7 @@ button.mobile-artist-bio__card:active {
   display: grid;
   place-items: center;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--accent) 14%, var(--bg-app));
   color: var(--accent);
 }
@@ -4186,7 +4143,7 @@ button.mobile-artist-bio__card:active {
   min-height: 42px;
   box-sizing: border-box;
   border: none;
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-card);
 }
 
@@ -4204,7 +4161,7 @@ button.mobile-artist-bio__card:active {
   box-sizing: border-box;
   padding: 14px 14px 14px 16px;
   border: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   color: var(--text-primary);
   font: inherit;
@@ -4249,7 +4206,7 @@ button.mobile-artist-bio__card:active {
 }
 
 .settings-touch-group {
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -4288,7 +4245,7 @@ button.mobile-artist-bio__card:active {
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--accent);
   color: var(--bg-app);
 }
@@ -4365,7 +4322,7 @@ button.mobile-artist-bio__card:active {
 .settings-touch .settings-group {
   padding: 4px 16px;
   border: none;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
 }
 
@@ -4444,7 +4401,7 @@ button.mobile-artist-bio__card:active {
   position: relative;
   z-index: 5;
   transform: translateY(var(--lift-dy, 0px)) scale(1.02);
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-elevated, var(--bg-card));
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
@@ -4512,7 +4469,7 @@ button.mobile-artist-bio__card:active {
 .server-touch-row__active {
   flex: none;
   padding: 3px 9px;
-  border-radius: 999px;
+  border-radius: 450px;
   background: color-mix(in srgb, var(--positive) 18%, transparent);
   color: var(--positive);
   font-size: 12px;
@@ -4585,7 +4542,7 @@ button.mobile-artist-bio__card:active {
 .user-touch-badge {
   margin-left: 8px;
   padding: 1px 8px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--accent);
   color: var(--text-on-accent, var(--bg-app));
   font-size: 11px;
@@ -4602,7 +4559,7 @@ button.mobile-artist-bio__card:active {
 
 .user-touch-chip {
   padding: 6px 12px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   color: var(--text-primary);
   font-size: 14px;
@@ -4875,7 +4832,7 @@ button.mobile-live-row:active {
   place-items: center;
   width: 56px;
   height: 56px;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   background: var(--card-placeholder-bg);
   color: var(--text-muted);
@@ -4957,7 +4914,7 @@ button.mobile-live-row:active {
   gap: 8px;
   height: 42px;
   padding: 0 12px;
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-card);
   color: var(--text-muted);
 }
@@ -5063,7 +5020,7 @@ button.mobile-live-row:active {
   min-height: 56px;
   margin-bottom: 8px;
   padding: 10px 12px 10px 14px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
 }
 
@@ -5143,7 +5100,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   min-height: 44px;
   padding: 0 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--bg-card);
   color: var(--text-secondary);
   font: inherit;
@@ -5182,7 +5139,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
 .mobile-orbit-room__primary {
   min-height: 48px;
   justify-content: center;
-  border-radius: 24px;
+  border-radius: 11px;
   font-size: 16px;
 }
 
@@ -5292,7 +5249,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   place-items: center;
   width: 44px;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--bg-card);
   color: var(--text-secondary);
 }
@@ -5338,7 +5295,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   align-items: flex-start;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   font-size: 14px;
   line-height: 1.4;
@@ -5401,7 +5358,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   height: 48px;
   margin-right: 4px;
   border: none;
-  border-radius: 12px;
+  border-radius: 5px;
   background: none;
   color: var(--accent);
 }
@@ -5429,7 +5386,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   width: 100%;
   min-height: 52px;
   justify-content: center;
-  border-radius: 26px;
+  border-radius: 12px;
   font-size: 17px;
 }
 
@@ -5451,7 +5408,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   flex-direction: column;
   gap: 8px;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
 }
 
@@ -5484,7 +5441,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 5px;
   background: color-mix(in srgb, var(--warning, #f5a524) 14%, transparent);
   font-size: 14px;
   line-height: 1.45;
@@ -5505,7 +5462,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
   padding: 0 5px;
   box-sizing: border-box;
   border: 2px solid var(--mobile-glass-bg, var(--bg-card));
-  border-radius: 9px;
+  border-radius: 4px;
   background: var(--accent);
   color: var(--text-on-accent, #000);
   font-size: 11px;
@@ -5554,7 +5511,7 @@ html[data-mobile-bars='collapsed'] .mobile-orbit-room {
 .mobile-orbit-share__link {
   display: block;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-card);
   color: var(--accent);
   font-size: 13px;
@@ -5699,7 +5656,7 @@ html[data-mobile-app] .player-heatmap-legend {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-radius: 16px;
+  border-radius: 7px;
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -5824,7 +5781,7 @@ html[data-mobile-app] .player-heatmap-legend {
 }
 
 .analytics-touch__group {
-  border-radius: 14px;
+  border-radius: 6px;
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -6003,7 +5960,7 @@ html[data-mobile-app][data-font='opendyslexic'] { font-size-adjust: 0.46; }
   flex: none;
   width: 24px;
   height: 24px;
-  border-radius: 12px;
+  border-radius: 5px;
   border: 2px solid var(--text-muted);
   box-sizing: border-box;
   display: flex;
@@ -6019,7 +5976,7 @@ html[data-mobile-app][data-font='opendyslexic'] { font-size-adjust: 0.46; }
 
 .mobile-track.is-selected {
   background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 html[data-mobile-selecting] .mobile-track__more {
@@ -6039,7 +5996,7 @@ html[data-mobile-selecting] .mobile-tabbar {
   right: 12px;
   z-index: 160;
   height: 52px;
-  border-radius: 26px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6059,7 +6016,7 @@ html[data-mobile-selecting] .mobile-tabbar {
   right: 12px;
   bottom: var(--mobile-bottom-edge);
   z-index: 160;
-  border-radius: 28px;
+  border-radius: 13px;
   display: flex;
   padding: 4px 6px;
 }
@@ -6107,7 +6064,7 @@ html[data-mobile-selecting] .mobile-tabbar {
   z-index: 2;
   transform: translateY(var(--lift-dy, 0px)) scale(1.02);
   background: var(--bg-elevated, var(--bg-card));
-  border-radius: 12px;
+  border-radius: 5px;
   border-bottom-color: transparent;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
@@ -6142,7 +6099,7 @@ html[data-mobile-reordering] .playlist-reorder-hint {
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px);
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .mobile-theme-preview__img--turned {
@@ -6217,7 +6174,7 @@ html[data-mobile-reordering] .playlist-reorder-hint {
 .touch-cache__seg {
   display: flex;
   padding: 3px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--text-primary) 8%, transparent);
 }
 
@@ -6225,7 +6182,7 @@ html[data-mobile-reordering] .playlist-reorder-hint {
   flex: 1;
   min-height: 36px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: none;
   color: var(--text-secondary);
   font: inherit;
@@ -6330,7 +6287,7 @@ html[data-mobile-reordering] .playlist-reorder-hint {
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 16px;
+  border-radius: 7px;
 }
 
 .mobile-eq__point {
@@ -6389,4 +6346,127 @@ html[data-mobile-reordering] .playlist-reorder-hint {
   text-align: right;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
+}
+
+/* ─── Hub (src/features/hub, MobileHubButton) ─── */
+/* "Play on" sheet: the hub's device list with touch-sized rows. */
+html[data-mobile-app] .hub-device-list--touch {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+}
+
+html[data-mobile-app] .hub-device-list--touch .hub-device-row {
+  min-height: 52px;
+  padding: 10px 12px;
+  gap: 14px;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+html[data-mobile-app] .hub-device-list--touch .hub-device-row svg {
+  width: 22px;
+  height: 22px;
+}
+
+html[data-mobile-app] .hub-device-list--touch .hub-device-row__playing {
+  font-size: 12.5px;
+}
+
+html[data-mobile-app] .hub-device-list--touch .hub-control {
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 15px;
+}
+
+html[data-mobile-app] .mobile-hub-sheet__status {
+  padding: 0 4px 10px;
+}
+
+html[data-mobile-app] .mobile-footer-btn.is-active {
+  color: var(--accent);
+}
+
+/* Settings → Integrations → Hub: scan the hub's QR code. */
+html[data-mobile-app] .mobile-hub-qr {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-3, 12px);
+}
+
+html[data-mobile-app] .mobile-hub-qr__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+html[data-mobile-app] .mobile-hub-qr__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Hub QR scan: the camera runs behind the web view, so the page goes transparent and
+   only the scanner's frame and cancel button stay (HubQrScanButton). */
+html[data-mobile-app][data-hub-scanning],
+html[data-mobile-app][data-hub-scanning] body {
+  background: transparent !important;
+}
+
+html[data-mobile-app][data-hub-scanning] #root {
+  visibility: hidden;
+}
+
+html[data-mobile-app] .mobile-hub-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  box-sizing: border-box;
+  background: transparent;
+  outline: none;
+}
+
+html[data-mobile-app] .mobile-hub-scanner__hint {
+  margin: 0;
+  max-width: 32ch;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+html[data-mobile-app] .mobile-hub-scanner__frame {
+  width: min(70vw, 280px);
+  aspect-ratio: 1;
+  border: 3px solid var(--accent);
+  border-radius: 7px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.35);
+}
+
+html[data-mobile-app] .mobile-hub-scanner__cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
 }
