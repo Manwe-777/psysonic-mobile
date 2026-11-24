@@ -155,6 +155,7 @@ export default function AlbumDetail() {
     serverId: albumOwnerServerId,
     albumId,
     album: album?.album,
+    songs: album?.songs,
     setAlbum,
     enabled: !offlineCtx.active,
     userMutationInFlightRef: userMetadataMutationRef,

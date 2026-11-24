@@ -1,10 +1,15 @@
+import { useSyncExternalStore } from 'react';
 import {
   FORCE_OFFLINE_AVAILABLE,
   isDevOfflineBrowseForced,
   useDevOfflineBrowseStore,
 } from '@/store/devOfflineBrowseStore';
 import { useConnectionStatus } from '@/lib/hooks/useConnectionStatus';
-import { isActiveServerReachable } from '@/lib/network/activeServerReachability';
+import {
+  getConnectionStatus,
+  isActiveServerReachable,
+  subscribeConnectionStatus,
+} from '@/lib/network/activeServerReachability';
 import { isNavigatorOfflineHint } from '@/lib/network/navigatorOnlineHint';
 
 /** True when browse/detail pages should use local-bytes-only data sources. */
@@ -24,6 +29,20 @@ export function useOfflineBrowseActive(): boolean {
   useConnectionStatus();
 
   if (FORCE_OFFLINE_AVAILABLE && devForceOffline) return true;
+  if (isNavigatorOfflineHint()) return true;
+  return !isActiveServerReachable();
+}
+
+/**
+ * The same flag without starting a server probe of its own: it only follows the shared
+ * connection status. For widgets that are always mounted inside the app shell (which runs the
+ * probing `useConnectionStatus`), so they do not add a probe on mount and every 120 s each.
+ */
+export function useOfflineBrowseStatus(): boolean {
+  const devForceOffline = useDevOfflineBrowseStore(s => s.forceOffline);
+  useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus, getConnectionStatus);
+
+  if (import.meta.env.DEV && devForceOffline) return true;
   if (isNavigatorOfflineHint()) return true;
   return !isActiveServerReachable();
 }

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Share2 } from 'lucide-react';
 import SettingsSubSection from '@/features/settings/components/SettingsSubSection';
 import { SettingsGroup } from '@/features/settings/components/SettingsGroup';
-import DesktopOnly from '@/features/settings/components/DesktopOnly';
 import { showToast } from '@/lib/dom/toast';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -39,9 +38,6 @@ export function MusicNetworkSection() {
   const { accounts, enrichmentPrimaryId, scrobblingMasterEnabled, scrobbleQueue } = useMusicNetworkState();
   const scrobbleThresholdPercent = useAuthStore(s => s.scrobbleThresholdPercent);
   const setScrobbleThresholdPercent = useAuthStore(s => s.setScrobbleThresholdPercent);
-  const advancedSettingsEnabled = useAuthStore(s => s.advancedSettingsEnabled);
-  const forceScrobbleEnabled = useAuthStore(s => s.forceScrobbleEnabled);
-  const setForceScrobbleEnabled = useAuthStore(s => s.setForceScrobbleEnabled);
   const [primaryProfile, setPrimaryProfile] = useState<UserProfile | null>(null);
 
   // Profile stats (scrobbles / member-since) for the enrichment primary.
@@ -128,29 +124,6 @@ export function MusicNetworkSection() {
             <SettingsValue>{t('musicNetwork.thresholdValue', { n: scrobbleThresholdPercent })}</SettingsValue>
           </SettingsField>
         </SettingsGroup>
-
-        {/* Not on iPhone and iPad: the control lives in the desktop player bar,
-            the touch player has none. */}
-        <DesktopOnly>
-          {advancedSettingsEnabled && (
-            <SettingsGroup>
-              <SettingsField
-                label={t('musicNetwork.forceScrobbleLabel')}
-                desc={t('musicNetwork.forceScrobbleDesc')}
-                row
-              >
-                <label className="toggle-switch" aria-label={t('musicNetwork.forceScrobbleLabel')}>
-                  <input
-                    type="checkbox"
-                    checked={forceScrobbleEnabled}
-                    onChange={e => setForceScrobbleEnabled(e.target.checked)}
-                  />
-                  <span className="toggle-track" />
-                </label>
-              </SettingsField>
-            </SettingsGroup>
-          )}
-        </DesktopOnly>
 
         <EnrichmentPrimarySelect
           accounts={accounts}

@@ -565,6 +565,7 @@ const CONTRIBUTOR_ENTRIES = [
     since: '1.51.0',
     contributions: [
       'Internet radio metadata — preserve UTF-8 titles with Latin-1 fallback (PR #1389)',
+      'Music Network — scrobble songs with several artists under the main artist (PR #1879)',
     ],
   },
   {
@@ -634,6 +635,7 @@ const CONTRIBUTOR_ENTRIES = [
     since: '1.56.0',
     contributions: [
       'AppImage launches against the system WebKitGTK when one is installed (PR #1348)',
+      'Playback — seeking behind reverse proxies that compress responses (PR #1881)',
     ],
   },
   {
@@ -655,6 +657,20 @@ const CONTRIBUTOR_ENTRIES = [
     since: '1.57.0',
     contributions: [
       'Linux Hi-Res playback — correct speed without rhythmic gaps on PipeWire (PR #1857)',
+    ],
+  },
+  {
+    github: 'kris-anderson',
+    since: '1.57.0',
+    contributions: [
+      'Album page — track ratings set in other apps (PR #1873)',
+    ],
+  },
+  {
+    github: 'carnation-sys',
+    since: '1.57.0',
+    contributions: [
+      'Mainstage banner — visibility tracking without scroll-time polling (PR #1871)',
     ],
   },
 ] as const;
