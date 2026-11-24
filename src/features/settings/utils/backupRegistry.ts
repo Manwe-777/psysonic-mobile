@@ -271,6 +271,8 @@ export const BACKUP_EXCLUSIONS: Readonly<Record<string, string>> = {
   // Not a storage key.
   'psysonic-toast': 'component id, not stored',
   'psysonic-toast-action': 'component id, not stored',
+  // Hub settings are intentionally excluded pending the planned backup redesign stuff.
+  'psysonic_hub_settings': 'Hub settings intentionally excluded pending redesign',
 };
 
 export const BACKUP_KEYS = BACKUP_REGISTRY.map(entry => entry.key);

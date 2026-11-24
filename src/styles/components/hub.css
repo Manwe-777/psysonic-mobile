@@ -1,0 +1,212 @@
+/* Psysonic Hub: "Play on" device picker rows (player bar, fullscreen player, mini player).
+   Deliberately NOT built on .player-btn / .mini-player__tool: themes restyle those buttons
+   (gradients, glossy pills, sizes) and a list row has to stay a plain row in every theme. */
+
+/* Player-bar popover container only. Fullscreen/mini player bring their own wrapper. */
+.hub-device-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+}
+
+.hub-device-title {
+  padding: 4px 8px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hub-device-popover .hub-device-title {
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hub-device-row {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.hub-device-row:hover,
+.hub-device-row:focus-visible {
+  background: var(--bg-hover);
+}
+
+.hub-device-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.hub-device-row--active {
+  color: var(--accent);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.hub-device-row--active:hover,
+.hub-device-row--active:focus-visible {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.hub-device-row svg {
+  flex: none;
+}
+
+.hub-device-row__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-device-row:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hub-device-row:disabled:hover {
+  background: transparent;
+}
+/* What the playing device plays, under its name. */
+.hub-device-row__playing {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+}
+
+/* Off hub control the list is only for looking: no hover, no pointer. */
+.hub-device-row--info {
+  cursor: default;
+}
+.hub-device-row--info:hover {
+  background: transparent;
+}
+.hub-device-row--info.hub-device-row--active:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* The Play on button while this device plays on its own. */
+.hub-picker--alone {
+  opacity: 0.5;
+}
+
+/* "Hub control" switch, and the choice when rejoining while another device plays. */
+.hub-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 10px 10px 6px;
+  border-top: 1px solid var(--border);
+}
+.hub-control__text {
+  flex: 1;
+  min-width: 0;
+}
+.hub-control__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.hub-control__hint {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+.hub-control--ask {
+  flex-direction: column;
+  align-items: stretch;
+}
+.hub-control--ask .hub-control__text {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.hub-control__choices {
+  display: flex;
+  gap: 6px;
+}
+.hub-control__choice {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.hub-control__choice:hover,
+.hub-control__choice:focus-visible {
+  background: var(--bg-hover);
+}
+.hub-control__choice:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.hub-control__choice-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.hub-control__choice .hub-control__hint {
+  display: block;
+}
+
+/* "Playing on …" strip on the top edge of the player bar while another device plays (fixed;
+   left, width and bottom come from the bar's position). The popover anchors to its right end. */
+.hub-playing-on-strip {
+  all: unset;
+  position: fixed;
+  z-index: 1001;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  height: 22px;
+  padding: 0 var(--space-5, 20px);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-on-accent, #11111b);
+  background: var(--accent);
+  border-radius: var(--radius-sm, 8px) var(--radius-sm, 8px) 0 0;
+  cursor: pointer;
+}
+.hub-playing-on-strip:hover {
+  filter: brightness(1.06);
+}
+.hub-playing-on-strip:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -3px;
+}
+/* Over the floating (pill) bar: a small pill above its right end instead of a band. */
+.hub-playing-on-strip--floating {
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
