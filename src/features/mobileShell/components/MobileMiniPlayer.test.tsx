@@ -8,6 +8,7 @@ import { registerDefaultCoverInvokeHandlers } from '@/test/mocks/tauri';
 import { swipe } from '@/test/helpers/touch';
 import { useOrbitStore } from '@/features/orbit';
 import { usePlayerStore } from '@/features/playback';
+import { useHubStore } from '@/features/hub';
 import MobileMiniPlayer from './MobileMiniPlayer';
 
 function Location() {
@@ -81,5 +82,49 @@ describe('MobileMiniPlayer', () => {
     useOrbitStore.setState({ role: 'host', phase: 'active' });
     renderMini();
     expect(screen.getByRole('button', { name: 'Next Track' })).toBeInTheDocument();
+  });
+});
+
+describe('MobileMiniPlayer with a hub', () => {
+  const hubOff = { enabled: false, url: '', token: '', status: 'off' as const, devices: [], remoteState: null, joined: true };
+
+  beforeEach(() => {
+    resetAllStores();
+    registerDefaultCoverInvokeHandlers();
+    useHubStore.setState(hubOff);
+  });
+
+  it('keeps Next and shows no hub button while no hub is set up', () => {
+    seedQueue([makeTrack({ title: 'Chaos' })]);
+    renderMini();
+    expect(screen.getByRole('button', { name: 'Next Track' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Play on a device' })).toBeNull();
+  });
+
+  it('puts the hub button where Next was once a hub is set up', () => {
+    useHubStore.setState({ enabled: true, url: 'https://hub.example.com', token: 'secret', status: 'connected' });
+    seedQueue([makeTrack({ title: 'Chaos' })]);
+    renderMini();
+    expect(screen.getByRole('button', { name: 'Play on a device' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Next Track' })).toBeNull();
+  });
+
+  it('shows the track another device plays and names that device', () => {
+    const me = useHubStore.getState().deviceId;
+    useHubStore.setState({
+      enabled: true, url: 'https://hub.example.com', token: 'secret', status: 'connected',
+      devices: [
+        { id: me, name: 'Phone', kind: 'phone', active: false },
+        { id: 'desk-other', name: 'Living Room', kind: 'desktop', active: true },
+      ],
+    });
+    useHubStore.getState().setRuntime({
+      remoteState: { from: 'desk-other', ts: 1, trackId: 't-remote', title: 'Elsewhere', artist: 'Band', playing: true },
+      remoteStateAt: Date.now(),
+    });
+    renderMini();
+    expect(screen.getByText('Elsewhere')).toBeInTheDocument();
+    expect(screen.getByText('Playing on Living Room')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument();
   });
 });

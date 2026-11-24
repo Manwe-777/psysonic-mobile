@@ -38,6 +38,8 @@ import MobileQueueSheet from '@/features/mobileShell/components/MobileQueueSheet
 import MobileAudioOptionsSheet from '@/features/mobileShell/components/MobileAudioOptionsSheet';
 import MobileEqSheet from '@/features/mobileShell/components/MobileEqSheet';
 import { eqActive, useEqStore } from '@/store/eqStore';
+import { useViewPlaying, useViewRepeat, useViewShuffle, useViewTrack } from '@/features/hub';
+import MobileHubButton from '@/features/mobileShell/components/MobileHubButton';
 
 /** Height of the seek area, plain bar or waveform alike (px). */
 const SEEK_SLOT_PX = 32;
@@ -161,7 +163,8 @@ export default function MobilePlayer() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const navigatePlaybackLibrary = usePlaybackLibraryNavigate();
-  const currentTrack = usePlayerStore(s => s.currentTrack);
+  // While another device plays through the hub, the player shows and controls that device.
+  const currentTrack = useViewTrack();
   // Phones: the player is the one screen that may turn sideways.
   useEffect(() => {
     allowLandscape(true);
@@ -172,13 +175,13 @@ export default function MobilePlayer() {
   const guestFollowsHost = useOrbitStore(s => isOrbitGuestFollowingHost(s.role, s.phase));
   const skipLockedTitle = guestFollowsHost ? t('settings.transitionsHostControlled') : undefined;
   const resolvedStreamFormat = usePlayerStore(s => s.resolvedStreamFormat);
-  const isPlaying = usePlayerStore(s => s.isPlaying);
+  const isPlaying = useViewPlaying();
   const togglePlay = usePlayerStore(s => s.togglePlay);
   const next = usePlayerStore(s => s.next);
   const previous = usePlayerStore(s => s.previous);
-  const repeatMode = usePlayerStore(s => s.repeatMode);
+  const repeatMode = useViewRepeat();
   const toggleRepeat = usePlayerStore(s => s.toggleRepeat);
-  const shuffleMode = usePlayerStore(s => s.shuffleMode);
+  const shuffleMode = useViewShuffle();
   const toggleShuffleMode = usePlayerStore(s => s.toggleShuffleMode);
   const starredOverrides = usePlayerStore(s => s.starredOverrides);
   const openContextMenu = usePlayerStore(s => s.openContextMenu);
@@ -430,6 +433,7 @@ export default function MobilePlayer() {
               >
                 <MicVocal size={22} aria-hidden="true" />
               </button>
+              <MobileHubButton className="mobile-footer-btn" />
               <button
                 type="button"
                 className={`mobile-footer-btn${eqOn ? ' is-active' : ''}`}
